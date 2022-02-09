@@ -103,7 +103,7 @@ const Home: NextPage = () => {
                 />
               )}
             />
-            <Box className="my-3">
+            <Box className="my-3 flex justify-center">
               <Button
                 variant="contained"
                 color="primary"
