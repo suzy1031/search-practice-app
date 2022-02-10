@@ -37,7 +37,7 @@ const Home: NextPage = () => {
 
     const encodedFreeWord = encodeFreeWord(data.searchText)
 
-    // TODO: 他の検索条件を実装後にhook化
+    // TODO: 他の検索条件を実装後にhook化する
     try {
       axios
         .get(
