@@ -12,7 +12,10 @@ const SearchResult: FC<{ result: Result | undefined }> = ({ result }) => {
           <React.Fragment key={index}>
             <Box className="mx-2 grid grid-cols-12">
               <Box className="col-span-3">
-                <img src={item.Item.mediumImageUrls[0].imageUrl} />
+                <img
+                  src={item.Item.mediumImageUrls[0].imageUrl}
+                  alt={item.Item.mediumImageUrls[0].imageUrl}
+                />
               </Box>
               <Box className="col-span-9 grid place-items-center pr-2">
                 <Box className="w-full">
