@@ -1,57 +1,84 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import axios from 'axios'
 
-import { IconButton, InputAdornment, TextField } from '@mui/material'
+import { IconButton, InputAdornment, Slider, TextField } from '@mui/material'
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardActions from '@mui/material/CardActions'
-import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import SearchIcon from '@mui/icons-material/Search'
 
 import AppRoot from './layout/AppRoot'
+import SearchResult from './components/SearchResult'
 
 import encodeFreeWord from '../utils/encodedUtil'
 import { BASE_URL } from '../constants/constants'
 import { FormData, Result } from '../types/type'
 
 const Home: NextPage = () => {
+  // 検索結果
   const [result, setResult] = useState<Result>()
-  const [formData, setFormData] = useState<FormData>({ searchText: '' })
+  // 入力されたフォームデータ
+  const [formData, _] = useState<FormData>({
+    keyword: '',
+    minPrice: 0,
+    maxPrice: 0,
+  })
+  // 詳しい検索
+  const [searchDetailOpen, setSearchDetailOpen] = useState(false)
+
+  // react-hook-form
   const {
     handleSubmit,
     control,
+    watch,
     formState: { errors, isValid },
+    getValues,
   } = useForm<FormData>({
     mode: 'all',
     defaultValues: formData,
   })
 
-  const onSearchSubmit = handleSubmit(async (data: FormData) => {
-    console.log('search start', data.searchText)
+  const onSearchSubmit = handleSubmit(async (data: FormData): Promise<void> => {
+    console.log('form data', data)
 
-    const encodedFreeWord = encodeFreeWord(data.searchText)
+    const encodedFreeWord = encodeFreeWord(data.keyword)
 
     // TODO: 他の検索条件を実装後にhook化する
-    try {
-      axios
-        .get(
-          `${BASE_URL}&keyword=${encodedFreeWord}&page=1&applicationId=${process.env.NEXT_PUBLIC_KEY}`,
-        )
-        .then((response) => {
-          setResult(response.data)
-        })
-        .catch((error) => console.log(error))
-    } catch (error) {
-      console.log('error')
+    const func = async () => {
+      try {
+        axios
+          .get(`${BASE_URL}`, {
+            params: {
+              keyword: encodedFreeWord,
+              minPrice: data.minPrice,
+              maxPrice: data.maxPrice,
+              page: 1,
+              applicationId: process.env.NEXT_PUBLIC_KEY,
+            },
+          })
+          .then((response) => {
+            setResult(response.data)
+          })
+          .catch((error) => console.log(error))
+      } catch (error) {
+        console.log('error')
+      }
     }
+    func()
   })
   console.log('result', result)
+
+  // 価格
+  const watchMin = watch('minPrice')
+  const watchMax = watch('maxPrice')
+  const isPriceInValid = watchMin > watchMax === true
+
+  const valuetext = (value: number) => {
+    return `${value}`
+  }
 
   return (
     <>
@@ -65,7 +92,7 @@ const Home: NextPage = () => {
         <Box>
           <form action="./" onSubmit={onSearchSubmit}>
             <Controller
-              name="searchText"
+              name="keyword"
               control={control}
               rules={{
                 required: 'required',
@@ -76,17 +103,16 @@ const Home: NextPage = () => {
                   type="search"
                   fullWidth
                   {...field}
-                  error={errors.searchText && true}
+                  error={errors.keyword && true}
                   margin="dense"
                   size="small"
                   variant="outlined"
                   color="primary"
                   placeholder="商品の検索"
                   id="item-search-input"
-                  required
                   helperText={
                     <>
-                      {errors.searchText?.type === 'required' &&
+                      {errors.keyword?.type === 'required' &&
                         '検索条件を入力してください。'}
                     </>
                   }
@@ -103,26 +129,103 @@ const Home: NextPage = () => {
                 />
               )}
             />
+            {searchDetailOpen ? (
+              <Box className="grid grid-cols-12">
+                <Box
+                  onClick={() => setSearchDetailOpen(false)}
+                  className="col-span-12 cursor-pointer"
+                >
+                  <Typography
+                    color="primary"
+                    className="underline underline-offset-4"
+                  >
+                    閉じる
+                  </Typography>
+                </Box>
+                <Box className="col-span-6 m-3">
+                  <Typography>
+                    {getValues('minPrice').toLocaleString()}円から
+                  </Typography>
+                  <Controller
+                    name="minPrice"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <Slider
+                          {...field}
+                          aria-label="Temperature"
+                          defaultValue={0}
+                          getAriaValueText={valuetext}
+                          valueLabelDisplay="off"
+                          step={1000}
+                          min={0}
+                          max={50000}
+                        />
+                      </>
+                    )}
+                  />
+                </Box>
+                <Box className="col-span-6 m-3">
+                  <Typography>
+                    {getValues('maxPrice').toLocaleString()}円まで
+                  </Typography>
+                  <Controller
+                    name="maxPrice"
+                    control={control}
+                    render={({ field }) => (
+                      <Slider
+                        {...field}
+                        aria-label="Temperature"
+                        defaultValue={0}
+                        getAriaValueText={valuetext}
+                        valueLabelDisplay="off"
+                        step={1000}
+                        min={0}
+                        max={50000}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box className="col-span-6 mx-3">
+                  {isPriceInValid && (
+                    <Typography color="error">
+                      価格設定が適切ではありません
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            ) : (
+              <Box className="grid grid-cols-12">
+                <Box
+                  onClick={() => setSearchDetailOpen(true)}
+                  className="col-span-12 cursor-pointer"
+                >
+                  <Typography
+                    color="primary"
+                    className="underline underline-offset-4"
+                  >
+                    詳しい検索
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+
             <Box className="my-3 flex justify-center">
               <Button
                 variant="contained"
                 color="primary"
                 type="submit"
-                disabled={!isValid}
+                disabled={!isValid || isPriceInValid}
               >
                 検索
               </Button>
             </Box>
           </form>
         </Box>
-        <Box>
-          {result &&
-            result.Items.length >= 1 &&
-            result.Items.map((item, index) => (
-              <Typography color="primary" key={index}>
-                {item.Item.itemPrice.toLocaleString()}
-              </Typography>
-            ))}
+        <Box className="relative flex-grow">
+          <Box className="w-full overflow-hidden">
+            <SearchResult result={result} />
+          </Box>
         </Box>
       </AppRoot>
     </>

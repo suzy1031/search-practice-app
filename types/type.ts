@@ -1,5 +1,7 @@
 export type FormData = {
-  searchText: string
+  keyword: string
+  minPrice: number
+  maxPrice: number
 }
 
 export type Result = {
