@@ -5,16 +5,19 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/layout',
+        source: '/layout/:slug',
         destination: '/',
         permanent: true,
       },
       {
-        source: '/components',
+        source: '/components/:slug',
         destination: '/',
         permanent: true,
       },
     ]
+  },
+  images: {
+    domains: ['thumbnail.image.rakuten.co.jp'],
   },
 }
 
