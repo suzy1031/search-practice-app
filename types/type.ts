@@ -1,7 +1,12 @@
+import { Control, FieldError } from 'react-hook-form'
+
 export type FormData = {
   keyword: string
   minPrice: number
   maxPrice: number
+  postageFlag: string
+  asurakuFlag: number
+  sort: string
 }
 
 export type Result = {
@@ -55,4 +60,37 @@ type Item = {
   startTime: string
   tagIds: number[]
   taxFlag: number
+}
+
+export type Props = {
+  onSearchSubmit: (
+    e?: React.BaseSyntheticEvent<object, any, any> | undefined,
+  ) => Promise<void>
+  control: Control<FormData, object>
+  errors: Error
+  searchDetailOpen: boolean
+  setSearchDetailOpen: (value: React.SetStateAction<boolean>) => void
+  valuetext: (value: number) => string
+  isPriceInValid: boolean
+  selectItem: {
+    value: number
+    text: string
+  }[]
+  isValid: boolean
+  result: Result | undefined
+  sortItems: {
+    value: string
+    text: string
+  }[]
+  getValues: <T>(name: T) => number
+  searchResultCount?: any
+}
+
+export type Error = {
+  keyword?: FieldError | undefined
+  minPrice?: FieldError | undefined
+  maxPrice?: FieldError | undefined
+  postageFlag?: FieldError | undefined
+  asurakuFlag?: FieldError | undefined
+  sort?: FieldError | undefined
 }
