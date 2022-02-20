@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { FC } from 'react'
+import React, { FC, memo } from 'react'
 
 import { Box } from '@mui/material'
 
@@ -7,23 +7,27 @@ import AppRoot from '../layout/AppRoot'
 import SearchField from './SearchField'
 import SearchResult from './SearchResult'
 
-import { Props } from '../../types/type'
+import { PresenterProps } from '../../types/type'
 
-const Presenter: FC<Props> = ({
+/*
+ * 無名関数から普通の名前付き関数にする
+ * memo化するとComponent definition is missing display nameとlintエラー
+ */
+const Presenter: FC<PresenterProps> = memo(function Presenter({
   onSearchSubmit,
   control,
   errors,
-  searchDetailOpen,
   setSearchDetailOpen,
   valuetext,
   isPriceInValid,
   selectItem,
   isValid,
-  result,
   sortItems,
   getValues,
   searchResultCount,
-}: Props) => {
+  handlePage,
+  itemLinkClick,
+}) {
   return (
     <>
       <Head>
@@ -38,25 +42,24 @@ const Presenter: FC<Props> = ({
             onSearchSubmit={onSearchSubmit}
             control={control}
             errors={errors}
-            searchDetailOpen={searchDetailOpen}
             setSearchDetailOpen={setSearchDetailOpen}
             valuetext={valuetext}
             isPriceInValid={isPriceInValid}
             selectItem={selectItem}
             isValid={isValid}
-            result={result}
             sortItems={sortItems}
             getValues={getValues}
+            handlePage={handlePage}
           />
         </Box>
         <Box className="mt-3 flex justify-end">{searchResultCount()}</Box>
         <Box className="relative my-3 flex-grow">
           <Box className="w-full overflow-hidden">
-            <SearchResult result={result} />
+            <SearchResult itemLinkClick={itemLinkClick} />
           </Box>
         </Box>
       </AppRoot>
     </>
   )
-}
+})
 export default Presenter

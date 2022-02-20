@@ -1,5 +1,7 @@
-import { FC } from 'react'
+import React, { FC, memo } from 'react'
 import { Controller } from 'react-hook-form'
+import { useRecoilValue } from 'recoil'
+import { dialogAtom, pageAtom, resultAtom } from '../../recoil/states'
 
 import {
   Box,
@@ -10,6 +12,7 @@ import {
   InputAdornment,
   ListItemText,
   MenuItem,
+  Pagination,
   Radio,
   RadioGroup,
   Select,
@@ -19,22 +22,25 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 
-import { Props } from '../../types/type'
+import { SearchProps } from '../../types/type'
 
-const SearchField: FC<Props> = ({
+const SearchField: FC<SearchProps> = memo(function SearchField({
   onSearchSubmit,
   control,
   errors,
-  searchDetailOpen,
   setSearchDetailOpen,
   valuetext,
   isPriceInValid,
   selectItem,
   isValid,
-  result,
   sortItems,
   getValues,
-}: Props) => {
+  handlePage,
+}) {
+  const searchResult = useRecoilValue(resultAtom)!
+  const currentPage = useRecoilValue(pageAtom)!
+  const searchDetailOpen = useRecoilValue(dialogAtom)!
+
   return (
     <form action="./" onSubmit={onSearchSubmit}>
       <Controller
@@ -218,34 +224,46 @@ const SearchField: FC<Props> = ({
           検索
         </Button>
       </Box>
-      {result && (
-        <Box className="flex items-center justify-end">
-          <Typography className="px-3">並べ替え</Typography>
-          <Controller
-            name="sort"
-            control={control}
-            render={({ field }) => (
-              <FormControl size="small" sx={{ minWidth: 100, maxWidth: 150 }}>
-                <Select
-                  {...field}
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                >
-                  {sortItems.map((item, index) => (
-                    <MenuItem key={index} value={item.value}>
-                      <ListItemText
-                        primary={item.text}
-                        disableTypography
-                      ></ListItemText>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          />
-        </Box>
+      {searchResult && (
+        <>
+          <Box className="flex items-center justify-end">
+            <Typography className="px-3">並べ替え</Typography>
+            <Controller
+              name="sort"
+              control={control}
+              render={({ field }) => (
+                <FormControl size="small" sx={{ minWidth: 100, maxWidth: 150 }}>
+                  <Select
+                    {...field}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                  >
+                    {sortItems.map((item, index) => (
+                      <MenuItem key={index} value={item.value}>
+                        <ListItemText
+                          primary={item.text}
+                          disableTypography
+                        ></ListItemText>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            />
+          </Box>
+          <Box className="flex justify-center">
+            <Pagination
+              count={100}
+              color="primary"
+              showFirstButton
+              showLastButton
+              onChange={handlePage}
+              page={currentPage}
+            />
+          </Box>
+        </>
       )}
     </form>
   )
-}
+})
 export default SearchField

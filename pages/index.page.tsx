@@ -1,29 +1,30 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import type { NextPage } from 'next'
 import axios from 'axios'
+import { useRouter } from 'next/router'
+import { useRecoilState } from 'recoil'
+import {
+  formDataAtom,
+  itemAtom,
+  resultAtom,
+  dialogAtom,
+  pageAtom,
+} from '../recoil/states'
 
 import Typography from '@mui/material/Typography'
 
-import encodeFreeWord from '../utils/encodedUtil'
 import { BASE_URL } from '../constants/constants'
-import { FormData, Result } from '../types/type'
+import { FormData, Item } from '../types/type'
 import Presenter from './components/Presenter'
 
 const Container: NextPage = () => {
   // 検索結果
-  const [result, setResult] = useState<Result>()
+  const [result, setResult] = useRecoilState(resultAtom)
   // 入力されたフォームデータ
-  const [formData, _] = useState<FormData>({
-    keyword: '',
-    minPrice: 0,
-    maxPrice: 0,
-    postageFlag: '0',
-    asurakuFlag: 0,
-    sort: '-updateTimestamp',
-  })
+  const [formData, setFormData] = useRecoilState(formDataAtom)
   // 詳しい検索
-  const [searchDetailOpen, setSearchDetailOpen] = useState(false)
+  const [searchDetailOpen, setSearchDetailOpen] = useRecoilState(dialogAtom)
 
   // react-hook-form
   const {
@@ -38,38 +39,40 @@ const Container: NextPage = () => {
   })
 
   const onSearchSubmit = handleSubmit(async (data: FormData): Promise<void> => {
-    console.log('form data', data)
+    // console.log('form data', data)
 
-    const encodedFreeWord = encodeFreeWord(data.keyword)
-    const encodedSort = encodeURI(data.sort)
+    setFormData(data)
 
-    // TODO: 他の検索条件を実装後にhook化する
-    const func = async () => {
-      try {
-        axios
-          .get(`${BASE_URL}`, {
-            params: {
-              keyword: encodedFreeWord,
-              minPrice: data.minPrice,
-              maxPrice: data.maxPrice,
-              postageFlag: data.postageFlag,
-              asurakuFlag: data.asurakuFlag,
-              page: 1,
-              sort: encodedSort,
-              applicationId: process.env.NEXT_PUBLIC_KEY,
-            },
-          })
-          .then((response) => {
-            setResult(response.data)
-          })
-          .catch((error) => console.log(error))
-      } catch (error) {
-        console.log('error')
-      }
-    }
-    func()
+    apiClient(data, 1)
   })
-  console.log('result', result)
+  // console.log('result', result)
+
+  // TODO: エラーハンドリングなど
+  const apiClient = async (data: FormData, page: number) => {
+    try {
+      await axios
+        .get(`${BASE_URL}`, {
+          params: {
+            keyword: data.keyword,
+            minPrice: data.minPrice,
+            maxPrice: data.maxPrice,
+            postageFlag: data.postageFlag,
+            asurakuFlag: data.asurakuFlag,
+            page: page,
+            sort: data.sort,
+            applicationId: process.env.NEXT_PUBLIC_KEY,
+          },
+        })
+        .then((response) => {
+          setResult(response.data)
+          // ページネーション初期化
+          setCurrentPage(page)
+        })
+        .catch((error) => console.log(error))
+    } catch (error) {
+      console.log('error')
+    }
+  }
 
   // 価格
   const watchMin = watch('minPrice')
@@ -110,21 +113,39 @@ const Container: NextPage = () => {
     { value: '-itemPrice', text: '高い順' },
   ]
 
+  // ページネーション
+  const [, setCurrentPage] = useRecoilState(pageAtom)
+  const handlePage = (
+    event: React.ChangeEvent<unknown>,
+    page: number,
+  ): void => {
+    apiClient(formData, page)
+  }
+
+  const router = useRouter()
+  const [, setItem] = useRecoilState(itemAtom)
+  // 商品詳細
+  const itemLinkClick = (item: Item): void => {
+    const itemObject = item
+    setItem(itemObject)
+    router.push('/item/item-detail')
+  }
+
   return (
     <Presenter
       onSearchSubmit={onSearchSubmit}
       control={control}
       errors={errors}
-      searchDetailOpen={searchDetailOpen}
       setSearchDetailOpen={setSearchDetailOpen}
       valuetext={valuetext}
       isPriceInValid={isPriceInValid}
       selectItem={selectItem}
       isValid={isValid}
-      result={result}
       sortItems={sortItems}
       getValues={getValues}
       searchResultCount={searchResultCount}
+      handlePage={handlePage}
+      itemLinkClick={itemLinkClick}
     />
   )
 }
