@@ -10,65 +10,66 @@ export type FormData = {
 }
 
 export type Result = {
-  Items: [
+  readonly Items: [
     Item: {
       Item: Item
     },
   ]
-  carrier: number
-  count: number
-  first: number
-  hits: number
-  last: number
-  page: number
-  pageCount: number
+  readonly carrier: number
+  readonly count: number
+  readonly first: number
+  readonly hits: number
+  readonly last: number
+  readonly page: number
+  readonly pageCount: number
 }
 
-type Item = {
-  affiliateRate: number
-  affiliateUrl: string
-  asurakuArea: string
-  asurakuClosingTime: string
-  asurakuFlag: number
-  availability: number
-  catchcopy: string
-  creditCardFlag: number
-  endTime: string
-  genreId: string
-  giftFlag: number
-  imageFlag: number
-  itemCaption: string
-  itemCode: string
-  itemName: string
-  itemPrice: number
-  itemUrl: string
-  mediumImageUrls: [{ imageUrl: string }]
-  pointRate: number
-  pointRateEndTime: string
-  pointRateStartTime: string
-  postageFlag: number
-  reviewAverage: number
-  reviewCount: number
-  shipOverseasArea: string
-  shipOverseasFlag: number
-  shopAffiliateUrl: string
-  shopCode: string
-  shopName: string
-  shopOfTheYearFlag: number
-  shopUrl: string
-  smallImageUrls: [{ imageUrl: string }]
-  startTime: string
-  tagIds: number[]
-  taxFlag: number
+export type Item = {
+  readonly affiliateRate: number
+  readonly affiliateUrl: string
+  readonly asurakuArea: string
+  readonly asurakuClosingTime: string
+  readonly asurakuFlag: number
+  readonly availability: number
+  readonly catchcopy: string
+  readonly creditCardFlag: number
+  readonly endTime: string
+  readonly genreId: string
+  readonly giftFlag: number
+  readonly imageFlag: number
+  readonly itemCaption: string
+  readonly itemCode: string
+  readonly itemName: string
+  readonly itemPrice: number
+  readonly itemUrl: string
+  readonly mediumImageUrls: [{ imageUrl: string }]
+  readonly pointRate: number
+  readonly pointRateEndTime: string
+  readonly pointRateStartTime: string
+  readonly postageFlag: number
+  readonly reviewAverage: number
+  readonly reviewCount: number
+  readonly shipOverseasArea: string
+  readonly shipOverseasFlag: number
+  readonly shopAffiliateUrl: string
+  readonly shopCode: string
+  readonly shopName: string
+  readonly shopOfTheYearFlag: number
+  readonly shopUrl: string
+  readonly smallImageUrls: [{ imageUrl: string }]
+  readonly startTime: string
+  readonly tagIds: number[]
+  readonly taxFlag: number
 }
 
-export type Props = {
+export type PresenterProps = ResultProps & SearchProps
+
+export type SearchProps = {
   onSearchSubmit: (
     e?: React.BaseSyntheticEvent<object, any, any> | undefined,
   ) => Promise<void>
   control: Control<FormData, object>
   errors: Error
-  searchDetailOpen: boolean
   setSearchDetailOpen: (value: React.SetStateAction<boolean>) => void
   valuetext: (value: number) => string
   isPriceInValid: boolean
@@ -77,13 +78,17 @@ export type Props = {
     text: string
   }[]
   isValid: boolean
-  result: Result | undefined
   sortItems: {
     value: string
     text: string
   }[]
   getValues: <T>(name: T) => number
   searchResultCount?: any
+  handlePage: (event: React.ChangeEvent<unknown>, page: number) => void
+}
+
+export type ResultProps = {
+  itemLinkClick: (item: Item) => void
 }
 
 export type Error = {
