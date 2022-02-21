@@ -1,5 +1,5 @@
 import { atom } from 'recoil'
-import { FormData, Item, Result } from '../types/type'
+import { FormData, GenreProps, Result } from '../types/type'
 
 const initFormData: FormData = {
   keyword: '',
@@ -17,20 +17,15 @@ const initFormData: FormData = {
  */
 enum AtomKey {
   formData = 'formDataKey',
-  item = 'itemKey',
   result = 'resultKey',
   searchDialogOpen = 'searchDialogOpenKey',
   currentPage = 'currentPageKey',
+  genre = 'genreKey',
 }
 
 export const formDataAtom = atom({
   key: AtomKey.formData,
   default: initFormData,
-})
-
-export const itemAtom = atom({
-  key: AtomKey.item,
-  default: null as null | Item,
 })
 
 export const resultAtom = atom({
@@ -46,4 +41,9 @@ export const dialogAtom = atom({
 export const pageAtom = atom({
   key: AtomKey.currentPage,
   default: 1,
+})
+
+export const genreAtom = atom({
+  key: AtomKey.genre,
+  default: undefined as undefined | GenreProps,
 })
