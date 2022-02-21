@@ -24,6 +24,7 @@ const SearchResult: FC<ResultProps> = memo(function SearchResult({
               <a>
                 <Box className="mx-2 grid grid-cols-12">
                   <Box className="col-span-3">
+                    {/* TODO: item.Item.mediumImageUrls[0]でimageが取得できないバグ修正 */}
                     <Image
                       src={
                         item.Item.mediumImageUrls[0]

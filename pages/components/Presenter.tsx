@@ -27,6 +27,7 @@ const Presenter: FC<PresenterProps> = memo(function Presenter({
   searchResultCount,
   handlePage,
   itemLinkClick,
+  result,
 }) {
   return (
     <>
@@ -55,7 +56,7 @@ const Presenter: FC<PresenterProps> = memo(function Presenter({
         <Box className="mt-3 flex justify-end">{searchResultCount()}</Box>
         <Box className="relative my-3 flex-grow">
           <Box className="w-full overflow-hidden">
-            <SearchResult itemLinkClick={itemLinkClick} />
+            <SearchResult result={result} itemLinkClick={itemLinkClick} />
           </Box>
         </Box>
       </AppRoot>

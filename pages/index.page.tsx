@@ -1,12 +1,10 @@
 import React, { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import type { NextPage } from 'next'
-import axios from 'axios'
 import { useRouter } from 'next/router'
 import { useRecoilState } from 'recoil'
 import {
   formDataAtom,
-  itemAtom,
   resultAtom,
   dialogAtom,
   pageAtom,
@@ -14,9 +12,9 @@ import {
 
 import Typography from '@mui/material/Typography'
 
-import { BASE_URL } from '../constants/constants'
 import { FormData, Item } from '../types/type'
 import Presenter from './components/Presenter'
+import { apiUtil } from '../utils/ApiUtil'
 
 const Container: NextPage = () => {
   // 検索結果
@@ -24,7 +22,9 @@ const Container: NextPage = () => {
   // 入力されたフォームデータ
   const [formData, setFormData] = useRecoilState(formDataAtom)
   // 詳しい検索
-  const [searchDetailOpen, setSearchDetailOpen] = useRecoilState(dialogAtom)
+  const [, setSearchDetailOpen] = useRecoilState(dialogAtom)
+  // ページネーション
+  const [, setCurrentPage] = useRecoilState(pageAtom)
 
   // react-hook-form
   const {
@@ -43,36 +43,11 @@ const Container: NextPage = () => {
 
     setFormData(data)
 
-    apiClient(data, 1)
+    const itemsRes = await apiUtil.searchItems({ params: data, page: 1 })
+    setResult(itemsRes)
+    setCurrentPage(1)
   })
-  // console.log('result', result)
-
-  // TODO: エラーハンドリングなど
-  const apiClient = async (data: FormData, page: number) => {
-    try {
-      await axios
-        .get(`${BASE_URL}`, {
-          params: {
-            keyword: data.keyword,
-            minPrice: data.minPrice,
-            maxPrice: data.maxPrice,
-            postageFlag: data.postageFlag,
-            asurakuFlag: data.asurakuFlag,
-            page: page,
-            sort: data.sort,
-            applicationId: process.env.NEXT_PUBLIC_KEY,
-          },
-        })
-        .then((response) => {
-          setResult(response.data)
-          // ページネーション初期化
-          setCurrentPage(page)
-        })
-        .catch((error) => console.log(error))
-    } catch (error) {
-      console.log('error')
-    }
-  }
+  console.log('result', result)
 
   // 価格
   const watchMin = watch('minPrice')
@@ -114,21 +89,29 @@ const Container: NextPage = () => {
   ]
 
   // ページネーション
-  const [, setCurrentPage] = useRecoilState(pageAtom)
-  const handlePage = (
-    event: React.ChangeEvent<unknown>,
-    page: number,
-  ): void => {
-    apiClient(formData, page)
-  }
+  const handlePage = useCallback(
+    async (event: React.ChangeEvent<unknown>, page: number) => {
+      const itemsRes = await apiUtil.searchItems({
+        params: formData,
+        page: page,
+      })
+      setResult(itemsRes)
+      setCurrentPage(page)
+    },
+    [formData, setCurrentPage, setResult],
+  )
+
+  // ソート
+  // const sort = watch('sort')
+  // console.log(sort)
 
   const router = useRouter()
-  const [, setItem] = useRecoilState(itemAtom)
   // 商品詳細
   const itemLinkClick = (item: Item): void => {
-    const itemObject = item
-    setItem(itemObject)
-    router.push('/item/item-detail')
+    router.push({
+      pathname: '/item',
+      query: { itemCode: item.itemCode, genreId: item.genreId },
+    })
   }
 
   return (
@@ -146,6 +129,7 @@ const Container: NextPage = () => {
       searchResultCount={searchResultCount}
       handlePage={handlePage}
       itemLinkClick={itemLinkClick}
+      result={result}
     />
   )
 }
