@@ -11,7 +11,7 @@ export type FormData = {
 
 export type Result = {
   readonly Items: [
-    Item: {
+    {
       Item: Item
     },
   ]
@@ -65,29 +65,24 @@ export type Item = {
 export type PresenterProps = ResultProps & SearchProps
 
 export type SearchProps = {
+  control: Control<FormData, object>
+  errors: Error
+  isPriceInValid: boolean
+  selectItem: Options
+  isValid: boolean
+  sortItems: Options
+  searchResultCount?: any
   onSearchSubmit: (
     e?: React.BaseSyntheticEvent<object, any, any> | undefined,
   ) => Promise<void>
-  control: Control<FormData, object>
-  errors: Error
   setSearchDetailOpen: (value: React.SetStateAction<boolean>) => void
   valuetext: (value: number) => string
-  isPriceInValid: boolean
-  selectItem: {
-    value: number
-    text: string
-  }[]
-  isValid: boolean
-  sortItems: {
-    value: string
-    text: string
-  }[]
   getValues: <T>(name: T) => number
-  searchResultCount?: any
   handlePage: (event: React.ChangeEvent<unknown>, page: number) => void
 }
 
 export type ResultProps = {
+  result: Result | undefined
   itemLinkClick: (item: Item) => void
 }
 
@@ -98,4 +93,47 @@ export type Error = {
   postageFlag?: FieldError | undefined
   asurakuFlag?: FieldError | undefined
   sort?: FieldError | undefined
+}
+
+type Options = {
+  value: string | number
+  text: string
+}[]
+
+export type Genre = {
+  readonly brothers: [
+    {
+      brother: GenreProps
+    },
+  ]
+  readonly children: []
+  readonly current: GenreProps
+  readonly parents: [
+    {
+      parent: GenreProps
+    },
+  ]
+  readonly tagGroups: [
+    {
+      tagGroup: {
+        tagGroupId: number
+        tagGroupName: string
+        tags: [
+          {
+            tag: {
+              parentTagId: number
+              tagId: number
+              tagName: string
+            }
+          },
+        ]
+      }
+    },
+  ]
+}
+
+export type GenreProps = {
+  genreId: number
+  genreLevel: number
+  genreName: string
 }
