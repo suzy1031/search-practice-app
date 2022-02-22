@@ -1,4 +1,5 @@
 import { NextPage } from 'next'
+import React, { useCallback, useEffect, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useRecoilValue } from 'recoil'
@@ -7,32 +8,26 @@ import { genreAtom } from '../../recoil/states'
 import { Box, Button, Typography } from '@mui/material'
 
 import AppRoot from '../layout/AppRoot'
-import { useEffect } from 'react'
-import axios from 'axios'
-import { SEARCH_URL } from '../../constants/constants'
+
+import { apiUtil } from '../../utils/ApiUtil'
+import { Item, Result } from '../../types/type'
+import SearchResult from '../components/SearchResult'
+import PageNation from '../components/Pagenation'
 
 const GenrePage: NextPage = () => {
   const router = useRouter()
   const genre = useRecoilValue(genreAtom)!
   console.log(genre)
+  const [result, setResult] = useState<Result>()
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     const func = async () => {
-      try {
-        axios
-          .get(`${SEARCH_URL}`, {
-            params: {
-              genreId: genre.genreId,
-              applicationId: process.env.NEXT_PUBLIC_KEY,
-            },
-          })
-          .then((response) => {
-            console.log(response)
-          })
-          .catch((error) => console.log(error))
-      } catch (error) {
-        console.log(error)
-      }
+      const itemsRes = await apiUtil.getGenreItems({
+        genreId: genre.genreId,
+        page: 1,
+      })
+      setResult(itemsRes)
     }
 
     if (typeof genre !== 'undefined') {
@@ -41,6 +36,31 @@ const GenrePage: NextPage = () => {
       router.replace('/')
     }
   }, [genre, router])
+  console.log(result)
+
+  // 商品詳細
+  const itemLinkClick = (item: Item): void => {
+    router.push({
+      pathname: '/item',
+      query: { itemCode: item.itemCode, genreId: item.genreId },
+    })
+  }
+
+  // ページネーション
+  const handlePage = useCallback(
+    async (event: React.ChangeEvent<unknown>, page: number) => {
+      const itemsRes = await apiUtil.getGenreItems({
+        genreId: genre.genreId,
+        page: page,
+      })
+      setResult(itemsRes)
+      console.log(page)
+      setCurrentPage(page)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+
   return (
     <>
       <Head>
@@ -55,10 +75,12 @@ const GenrePage: NextPage = () => {
               {`"${genre.genreName}"`}の検索結果
             </Typography>
             <Box className="my-3 flex justify-center">
-              <Button variant="outlined" onClick={() => router.back()}>
-                戻る
+              <Button variant="outlined" onClick={() => router.push('/')}>
+                検索TOPへ
               </Button>
             </Box>
+            <PageNation handlePage={handlePage} currentPage={currentPage} />
+            <SearchResult result={result} itemLinkClick={itemLinkClick} />
           </>
         )}
       </AppRoot>
