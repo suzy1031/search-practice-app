@@ -8,6 +8,7 @@ import SearchField from './SearchField'
 import SearchResult from './SearchResult'
 
 import { PresenterProps } from '../../types/type'
+import PageNation from './Pagenation'
 
 /*
  * 無名関数から普通の名前付き関数にする
@@ -24,7 +25,7 @@ const Presenter: FC<PresenterProps> = memo(function Presenter({
   isValid,
   sortItems,
   getValues,
-  searchResultCount,
+  currentPage,
   handlePage,
   itemLinkClick,
   result,
@@ -50,15 +51,12 @@ const Presenter: FC<PresenterProps> = memo(function Presenter({
             isValid={isValid}
             sortItems={sortItems}
             getValues={getValues}
-            handlePage={handlePage}
           />
         </Box>
-        <Box className="mt-3 flex justify-end">{searchResultCount()}</Box>
-        <Box className="relative my-3 flex-grow">
-          <Box className="w-full overflow-hidden">
-            <SearchResult result={result} itemLinkClick={itemLinkClick} />
-          </Box>
-        </Box>
+        {result && (
+          <PageNation handlePage={handlePage} currentPage={currentPage} />
+        )}
+        <SearchResult result={result} itemLinkClick={itemLinkClick} />
       </AppRoot>
     </>
   )

@@ -72,16 +72,13 @@ const ItemPage: NextPage = () => {
                     <HomeIcon sx={{ mr: 0.5, mb: 0.5 }} fontSize="inherit" />
                     ホーム
                   </Link>
-                  <Box
-                    onClick={() => console.log('category')}
-                    className="cursor-pointer"
-                  >
+                  <Typography>
                     <WhatshotIcon
                       sx={{ mr: 0.5, mb: 0.5 }}
                       fontSize="inherit"
                     />
                     {genre.parents[0].parent.genreName}
-                  </Box>
+                  </Typography>
                   <Typography color="text.primary">
                     <GrainIcon sx={{ mr: 0.5, mb: 0.5 }} fontSize="inherit" />
                     {genre.current.genreName}
@@ -97,7 +94,7 @@ const ItemPage: NextPage = () => {
                     size="small"
                     variant="text"
                     color="inherit"
-                    onClick={() => console.log('category')}
+                    onClick={() => handleGenreSearch(parent.parent)}
                   >
                     {parent.parent.genreName}
                   </Button>

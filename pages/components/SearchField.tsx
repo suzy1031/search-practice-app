@@ -35,7 +35,6 @@ const SearchField: FC<SearchProps> = memo(function SearchField({
   isValid,
   sortItems,
   getValues,
-  handlePage,
 }) {
   const searchResult = useRecoilValue(resultAtom)!
   const currentPage = useRecoilValue(pageAtom)!
@@ -249,16 +248,6 @@ const SearchField: FC<SearchProps> = memo(function SearchField({
                   </Select>
                 </FormControl>
               )}
-            />
-          </Box>
-          <Box className="flex justify-center">
-            <Pagination
-              count={100}
-              color="primary"
-              showFirstButton
-              showLastButton
-              onChange={handlePage}
-              page={currentPage}
             />
           </Box>
         </>

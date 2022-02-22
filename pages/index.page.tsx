@@ -24,7 +24,7 @@ const Container: NextPage = () => {
   // 詳しい検索
   const [, setSearchDetailOpen] = useRecoilState(dialogAtom)
   // ページネーション
-  const [, setCurrentPage] = useRecoilState(pageAtom)
+  const [currentPage, setCurrentPage] = useRecoilState(pageAtom)
 
   // react-hook-form
   const {
@@ -63,22 +63,6 @@ const Container: NextPage = () => {
     { value: 0, text: '設定しない' },
     { value: 1, text: '翌日配送' },
   ]
-
-  // 検索結果の件数
-  const searchResultCount = useCallback(() => {
-    const first = result?.first
-    const last = result?.last
-    const totalCount = result?.count
-    if (result) {
-      return (
-        <Typography>
-          {first} ~ {last}（{totalCount?.toLocaleString()}件）
-        </Typography>
-      )
-    } else {
-      return null
-    }
-  }, [result])
 
   // 並び替え
   const sortItems = [
@@ -126,7 +110,7 @@ const Container: NextPage = () => {
       isValid={isValid}
       sortItems={sortItems}
       getValues={getValues}
-      searchResultCount={searchResultCount}
+      currentPage={currentPage}
       handlePage={handlePage}
       itemLinkClick={itemLinkClick}
       result={result}
