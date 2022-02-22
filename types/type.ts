@@ -62,7 +62,7 @@ export type Item = {
   readonly taxFlag: number
 }
 
-export type PresenterProps = ResultProps & SearchProps
+export type PresenterProps = ResultProps & SearchProps & PageNationProps
 
 export type SearchProps = {
   control: Control<FormData, object>
@@ -71,19 +71,22 @@ export type SearchProps = {
   selectItem: Options
   isValid: boolean
   sortItems: Options
-  searchResultCount?: any
   onSearchSubmit: (
     e?: React.BaseSyntheticEvent<object, any, any> | undefined,
   ) => Promise<void>
   setSearchDetailOpen: (value: React.SetStateAction<boolean>) => void
   valuetext: (value: number) => string
   getValues: <T>(name: T) => number
-  handlePage: (event: React.ChangeEvent<unknown>, page: number) => void
 }
 
 export type ResultProps = {
   result: Result | undefined
   itemLinkClick: (item: Item) => void
+}
+
+export type PageNationProps = {
+  currentPage: number
+  handlePage: (event: React.ChangeEvent<unknown>, page: number) => void
 }
 
 export type Error = {
