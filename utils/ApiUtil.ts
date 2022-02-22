@@ -1,12 +1,13 @@
+import { fetchUtil } from './FetchUtil'
 import { apiUrl } from './ApiUrl'
 import { Result, FormData, Genre } from '../types/type'
-import axios from 'axios'
 
 class ApiUtil {
   public searchItems = async (args: {
     params: FormData
     page: number
   }): Promise<Result> => {
+    // Promise<>の型はfetchUtil.get<>と同じ型
     const { params, page } = args
 
     const data = {
@@ -20,13 +21,12 @@ class ApiUtil {
       applicationId: process.env.NEXT_PUBLIC_KEY,
     }
 
-    try {
-      const res = await axios.get(apiUrl.itemSearch(), { params: data })
-      return res.data
-    } catch (error) {
-      console.error(error)
-      throw new Error()
-    }
+    const res = await fetchUtil.get<Result>({
+      // fetchUtil.get<>の型はPromise<>と同じ型
+      url: apiUrl.itemSearch(),
+      data,
+    })
+    return res.data
   }
 
   public getItem = async (args: { itemCode: string }): Promise<Result> => {
@@ -37,13 +37,24 @@ class ApiUtil {
       applicationId: process.env.NEXT_PUBLIC_KEY,
     }
 
-    try {
-      const res = await axios.get(apiUrl.itemSearch(), { params: data })
-      return res.data
-    } catch (error) {
-      console.error(error)
-      throw new Error()
+    const res = await fetchUtil.get<Result>({ url: apiUrl.itemSearch(), data })
+    return res.data
+  }
+
+  public getGenreItems = async (args: {
+    genreId: number
+    page: number
+  }): Promise<Result> => {
+    const { genreId, page } = args
+
+    const data = {
+      genreId: genreId,
+      page: page,
+      applicationId: process.env.NEXT_PUBLIC_KEY,
     }
+
+    const res = await fetchUtil.get<Result>({ url: apiUrl.itemSearch(), data })
+    return res.data
   }
 
   public genreSearch = async (args: { genreId: string }): Promise<Genre> => {
@@ -54,13 +65,15 @@ class ApiUtil {
       applicationId: process.env.NEXT_PUBLIC_KEY,
     }
 
-    try {
-      const res = await axios.get(apiUrl.genreSearch(), { params: data })
-      return res.data
-    } catch (error) {
-      console.error(error)
-      throw new Error()
-    }
+    const res = await fetchUtil.get<Genre>({
+      url: apiUrl.genreSearch(),
+      data,
+    })
+    return res.data
   }
 }
+/* インスタンス化してexportする
+ * 呼び出し方
+ * apiUtil.method({ args: args })
+ */
 export const apiUtil = new ApiUtil()

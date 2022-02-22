@@ -1,4 +1,5 @@
 class ApiUrl {
+  // staticはclass内からのみアクセス可能
   static readonly API_BASE_URL: string =
     'https://app.rakuten.co.jp/services/api'
 
