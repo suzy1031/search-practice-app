@@ -1,3 +1,4 @@
+import { SelectChangeEvent } from '@mui/material'
 import { Control, FieldError } from 'react-hook-form'
 
 export type FormData = {
@@ -77,6 +78,7 @@ export type SearchProps = {
   setSearchDetailOpen: (value: React.SetStateAction<boolean>) => void
   valuetext: (value: number) => string
   getValues: <T>(name: T) => number
+  handleChange: (e: SelectChangeEvent<string>) => void
 }
 
 export type ResultProps = {
