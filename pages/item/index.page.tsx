@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { NextPage } from 'next'
-import { useEffect, useState } from 'react'
+import Image from 'next/image'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useRecoilState } from 'recoil'
 import { genreAtom } from '../../recoil/states'
@@ -25,12 +26,24 @@ const ItemPage: NextPage = () => {
 
   const [selectedGenre, setSelectedGenre] = useRecoilState(genreAtom)
 
+  const [imageSrc, setImageSrc] = useState({
+    src: '',
+    index: 0,
+  })
+
   useEffect(() => {
     if (typeof itemCode !== 'undefined') {
       const itemCodeStr = itemCode.toString()
       const func = async () => {
         const itemRes = await apiUtil.getItem({ itemCode: itemCodeStr })
-        setItem(itemRes.Items[0].Item)
+        const item = itemRes.Items[0].Item
+        setItem(item)
+
+        if (item.mediumImageUrls.length >= 1) {
+          setImageSrc({ src: item.mediumImageUrls[0].imageUrl, index: 0 })
+        } else {
+          setImageSrc({ src: '/images/noimage.png', index: 0 })
+        }
       }
 
       func()
@@ -45,8 +58,9 @@ const ItemPage: NextPage = () => {
       func()
     }
   }, [genreId, itemCode])
-  // console.log('item state', item)
+  console.log('item state', item)
   // console.log('genre state', genre)
+  // console.log('src state', imageSrc)
 
   const handleGenreSearch = (genre: GenreProps): void => {
     // console.log(genre)
@@ -54,6 +68,17 @@ const ItemPage: NextPage = () => {
     router.push('/genre')
   }
   // console.log('global genre state', selectedGenre)
+
+  // 画像の切替え
+  const handleImage = useCallback(
+    (index: number) => {
+      console.log(index)
+      if (typeof item !== 'undefined') {
+        setImageSrc({ src: item.mediumImageUrls[index].imageUrl, index: index })
+      }
+    },
+    [item],
+  )
 
   return (
     <>
@@ -118,13 +143,50 @@ const ItemPage: NextPage = () => {
             </Box>
           </>
         )}
-        {item && (
+        {item && imageSrc.src && (
           <>
-            <Typography color="primary">{item.itemName}</Typography>
-            <Typography>の詳細ページです</Typography>
+            <Box className="mx-2 grid grid-cols-12">
+              <Box className="col-span-3">
+                <Image
+                  src={imageSrc.src}
+                  alt={imageSrc.src}
+                  width={200}
+                  height={200}
+                />
+                {item.smallImageUrls.map((image, index) => (
+                  <>
+                    <span className="mx-1">
+                      <Image
+                        key={index}
+                        src={image.imageUrl}
+                        alt={image.imageUrl}
+                        width={50}
+                        height={50}
+                        className={
+                          imageSrc.index === index
+                            ? `cursor-pointer opacity-50`
+                            : `cursor-pointer`
+                        }
+                        onClick={() => handleImage(index)}
+                      />
+                    </span>
+                  </>
+                ))}
+              </Box>
+              <Box className="col-span-9 grid place-items-start px-2">
+                <Box className="w-full">
+                  <Typography variant="subtitle2" color="inherit">
+                    {item.itemName}
+                  </Typography>
+                  <Typography variant="h6" color="error">
+                    {item.itemPrice.toLocaleString()}円
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
             <Box className="my-3 flex justify-center">
               <Button variant="outlined" onClick={() => router.back()}>
-                戻る
+                検索TOPへ戻る
               </Button>
             </Box>
           </>
