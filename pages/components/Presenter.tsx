@@ -29,6 +29,7 @@ const Presenter: FC<PresenterProps> = memo(function Presenter({
   handlePage,
   itemLinkClick,
   result,
+  handleChange,
 }) {
   return (
     <>
@@ -51,6 +52,7 @@ const Presenter: FC<PresenterProps> = memo(function Presenter({
             isValid={isValid}
             sortItems={sortItems}
             getValues={getValues}
+            handleChange={handleChange}
           />
         </Box>
         {result && (

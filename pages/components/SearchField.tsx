@@ -1,7 +1,7 @@
 import React, { FC, memo } from 'react'
 import { Controller } from 'react-hook-form'
 import { useRecoilValue } from 'recoil'
-import { dialogAtom, pageAtom, resultAtom } from '../../recoil/states'
+import { dialogAtom, resultAtom } from '../../recoil/states'
 
 import {
   Box,
@@ -12,7 +12,6 @@ import {
   InputAdornment,
   ListItemText,
   MenuItem,
-  Pagination,
   Radio,
   RadioGroup,
   Select,
@@ -35,9 +34,9 @@ const SearchField: FC<SearchProps> = memo(function SearchField({
   isValid,
   sortItems,
   getValues,
+  handleChange,
 }) {
   const searchResult = useRecoilValue(resultAtom)!
-  const currentPage = useRecoilValue(pageAtom)!
   const searchDetailOpen = useRecoilValue(dialogAtom)!
 
   return (
@@ -230,12 +229,16 @@ const SearchField: FC<SearchProps> = memo(function SearchField({
             <Controller
               name="sort"
               control={control}
-              render={({ field }) => (
+              render={({ field: { onChange, value } }) => (
                 <FormControl size="small" sx={{ minWidth: 100, maxWidth: 150 }}>
                   <Select
-                    {...field}
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
+                    onChange={(e) => {
+                      onChange(e)
+                      handleChange(e)
+                    }}
+                    value={value}
                   >
                     {sortItems.map((item, index) => (
                       <MenuItem key={index} value={item.value}>

@@ -9,8 +9,7 @@ import {
   dialogAtom,
   pageAtom,
 } from '../recoil/states'
-
-import Typography from '@mui/material/Typography'
+import { SelectChangeEvent } from '@mui/material'
 
 import { FormData, Item } from '../types/type'
 import Presenter from './components/Presenter'
@@ -86,8 +85,18 @@ const Container: NextPage = () => {
   )
 
   // ソート
-  // const sort = watch('sort')
-  // console.log(sort)
+  const handleChange = useCallback(
+    async (e: SelectChangeEvent<string>) => {
+      const sort = e.target.value
+      const params = { ...formData, sort: sort }
+      // globalで保持するstateを更新
+      setFormData({ ...params, sort: sort })
+      const itemsRes = await apiUtil.searchItems({ params: params, page: 1 })
+      setResult(itemsRes)
+      setCurrentPage(1)
+    },
+    [formData, setCurrentPage, setFormData, setResult],
+  )
 
   const router = useRouter()
   // 商品詳細
@@ -114,6 +123,7 @@ const Container: NextPage = () => {
       handlePage={handlePage}
       itemLinkClick={itemLinkClick}
       result={result}
+      handleChange={handleChange}
     />
   )
 }
